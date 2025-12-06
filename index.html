@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diego Rodríguez · Desarrollador Web Full Stack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/gsap@3/dist/gsap.min.js" defer></script>
+  <script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js" defer></script>
+  <script src="https://unpkg.com/@studio-freight/lenis@1.0.35/bundled/lenis.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body data-theme="dark">
+  <div class="noise"></div>
+
+  <main>
+    <section id="hero" class="section hero">
+      <div class="hero-clock" id="hero-clock"></div>
+      <div class="hero-inner">
+        <p class="eyebrow">Portfolio</p>
+        <h1 class="hero-name">Diego Rodríguez</h1>
+        <p class="hero-role"><span id="hero-role-text">Desarrollador Web Full Stack</span></p>
+        <p class="hero-sub">Construyo soluciones digitales web: front animado, back robusto y despliegue listo para producción.</p>
+      </div>
+    </section>
+
+    <section id="projects" class="section projects">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Proyectos destacados</p>
+          <h2>Repositorios que importan</h2>
+        </div>
+      </div>
+      <div id="projects-list" class="projects-grid"></div>
+    </section>
+
+    <section id="tech" class="section tech">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Stack</p>
+          <h2>Herramientas y lenguajes</h2>
+        </div>
+      </div>
+      <div id="tech-list" class="tech-grid"></div>
+    </section>
+
+    <section id="experience" class="section experience">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Experiencia</p>
+          <h2>Actualmente: Robootics Education</h2>
+        </div>
+      </div>
+      <div id="experience-graph" class="timeline"></div>
+    </section>
+
+    <section id="education" class="section education">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Formación</p>
+          <h2>Certificaciones y estudios</h2>
+        </div>
+      </div>
+      <div id="education-list" class="education-grid"></div>
+    </section>
+
+    <section id="contact" class="section contact">
+      <div class="contact-card">
+        <div>
+          <p class="eyebrow">Contacto</p>
+          <h2>Hablemos</h2>
+          <p class="muted">Envía un correo y coordinamos.</p>
+        </div>
+        <div class="contact-links">
+          <a class="contact-link" href="mailto:contacto@tudominio.com">contacto@tudominio.com</a>
+          <a class="contact-link" href="mailto:diego.rodriguez@xyzdigital.es">diego.rodriguez@xyzdigital.es</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="terminos.html">Términos Legales</a>
+      <a href="privacidad.html">Privacidad</a>
+      <a href="cookies.html">Cookies</a>
+    </div>
+    <p>Desarrollado por Diego Rodríguez con ❤️ 2025</p>
+  </footer>
+
+  <div class="cookie-banner" id="cookie-banner">
+    <div class="cookie-text">
+      <strong>Cookies</strong>
+      <span>Solo uso una cookie para recordar tu elección. No hay analítica ni terceros.</span>
+    </div>
+    <button id="cookie-accept" class="btn-cookie">Aceptar</button>
+  </div>
+</body>
+</html>
