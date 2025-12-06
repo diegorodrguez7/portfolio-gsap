@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const codeLines = document.querySelectorAll(".code-line");
   const heroProgress = document.getElementById("hero-progress");
   const heroProgressLabel = document.getElementById("hero-progress-label");
+  const heroTarget = document.querySelector(".hero-target");
+  const heroName = document.querySelector(".hero-name");
 
   // -------- Data para personalizar --------
   const featuredRepos = [
@@ -140,8 +142,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // Banner de cookies
   const cookieKey = "cookie_consent";
   const consent = localStorage.getItem(cookieKey);
-  if (!consent && cookieBanner) {
-    cookieBanner.style.display = "flex";
+  if (cookieBanner) {
+    if (!consent) {
+      cookieBanner.style.display = "flex";
+    } else {
+      cookieBanner.style.display = "none";
+    }
   }
   if (cookieAccept) {
     cookieAccept.addEventListener("click", () => {
@@ -231,6 +237,19 @@ document.addEventListener("DOMContentLoaded", () => {
   // Revelado progresivo de secciones
   const hasGSAP = typeof gsap !== "undefined";
   if (hero) hero.classList.add("revealed");
+
+  // Posicionar mira sobre el nombre
+  const positionTarget = () => {
+    if (!heroTarget || !heroName || !hero) return;
+    const heroRect = hero.getBoundingClientRect();
+    const nameRect = heroName.getBoundingClientRect();
+    const x = nameRect.left - heroRect.left + nameRect.width / 2;
+    const y = nameRect.top - heroRect.top + nameRect.height / 2;
+    heroTarget.style.setProperty("--target-x", `${x}px`);
+    heroTarget.style.setProperty("--target-y", `${y}px`);
+  };
+  positionTarget();
+  window.addEventListener("resize", positionTarget);
 
   const revealSection = (section) => {
     if (section.dataset.revealed) return;
