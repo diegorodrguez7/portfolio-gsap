@@ -6,6 +6,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const heroClock = document.getElementById("hero-clock");
   const cookieBanner = document.getElementById("cookie-banner");
   const cookieAccept = document.getElementById("cookie-accept");
+  const codeLines = document.querySelectorAll(".code-line");
+  const heroProgress = document.getElementById("hero-progress");
+  const heroProgressLabel = document.getElementById("hero-progress-label");
 
   // -------- Data para personalizar --------
   const featuredRepos = [
@@ -100,6 +103,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, 2000);
 
+  // Code lines dinámicas estilo consola
+  const steps = [
+    "cargando entorno...",
+    "preparando dependencias...",
+    "conectando a servidor...",
+    "sincronizando assets...",
+    "iniciando build...",
+    "desplegando en CDN...",
+    "verificando integridad...",
+    "optimizando imágenes...",
+    "configurando seguridad...",
+    "aplicando animaciones...",
+    "generando sitemap...",
+    "revisando logs...",
+  ];
+  let stepIndex = 0;
+  const codeInterval = setInterval(() => {
+    if (!codeLines.length) return;
+    const line = codeLines[stepIndex % codeLines.length];
+    line.textContent = steps[Math.min(stepIndex, steps.length - 1)];
+    stepIndex = (stepIndex + 1) % steps.length;
+  }, 500);
+
   // Reloj retro
   const updateClock = () => {
     const now = new Date();
@@ -122,6 +148,36 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem(cookieKey, "accepted");
       if (cookieBanner) cookieBanner.style.display = "none";
     });
+  }
+
+  // Barra de progreso hero (15s, luego se desvanece)
+  if (heroProgress && heroProgressLabel) {
+    const duration = 15000;
+    const start = performance.now();
+    const tick = (now) => {
+      const elapsed = Math.min(now - start, duration);
+      const pct = Math.floor((elapsed / duration) * 100);
+      heroProgress.style.width = `${pct}%`;
+      heroProgressLabel.textContent = `${pct}%`;
+      if (elapsed < duration) {
+        requestAnimationFrame(tick);
+      } else {
+        heroProgressLabel.textContent = "100%";
+        heroProgress.parentElement.style.opacity = "0";
+        heroProgress.parentElement.style.transition = "opacity 0.8s ease";
+        // Consola: limpiar y mostrar ready
+        clearInterval(codeInterval);
+        codeLines.forEach((line, idx) => {
+          line.textContent = idx === 0 ? "Ready to deploy." : "";
+        });
+        setTimeout(() => {
+          if (heroProgress.parentElement) {
+            heroProgress.parentElement.style.display = "none";
+          }
+        }, 800);
+      }
+    };
+    requestAnimationFrame(tick);
   }
 
   // Smooth scroll con Lenis (fallback nativo si no carga)

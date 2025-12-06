@@ -130,6 +130,96 @@ main {
   letter-spacing: 0.2px;
 }
 
+.hero-code {
+  margin: 10px auto 0;
+  border: 1px solid var(--border);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--card) 90%, transparent), color-mix(in srgb, var(--bg) 85%, transparent));
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  font-family: "Space Grotesk", "SFMono-Regular", ui-monospace, monospace;
+  text-align: left;
+  width: clamp(320px, 60vw, 560px);
+}
+
+.code-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 80%, transparent);
+  font-weight: 700;
+}
+
+.code-title {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+.dot.red { background: #ff6b6b; }
+.dot.yellow { background: #ffd166; }
+.dot.green { background: #74e38a; }
+
+.code-body {
+  padding: 12px 14px;
+  display: grid;
+  gap: 6px;
+  font-size: 0.98rem;
+  min-height: 108px;
+}
+
+.code-line {
+  color: var(--text);
+  opacity: 0.85;
+  white-space: pre-wrap;
+  animation: codeGlow 2.4s ease-in-out infinite;
+}
+
+@keyframes codeGlow {
+  0%, 100% { opacity: 0.75; filter: blur(0px); }
+  50% { opacity: 1; filter: drop-shadow(0 0 8px rgba(113, 242, 212, 0.25)); }
+}
+
+.progress-shell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 80%, transparent);
+}
+
+.progress-track {
+  flex: 1;
+  height: 8px;
+  background: color-mix(in srgb, var(--card) 70%, transparent);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #71f2d4, #4ab3ff);
+  border-radius: 999px;
+  transition: width 0.2s linear;
+}
+
+.progress-label {
+  min-width: 48px;
+  text-align: right;
+  font-weight: 700;
+  color: var(--muted);
+}
+
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 1px;
