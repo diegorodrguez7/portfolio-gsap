@@ -104,10 +104,49 @@ main {
   font-variant-numeric: tabular-nums;
 }
 
+.hero-status {
+  position: static;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 85%, transparent);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow);
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #4cff72;
+  box-shadow: 0 0 16px rgba(76, 255, 114, 0.8);
+  animation: pulseDot 0.9s ease-in-out infinite;
+}
+
+.status-text {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.4; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.12); }
+}
+
+.hero-hearts {
+}
 .hero-inner {
-  max-width: 760px;
+  max-width: 960px;
+  width: min(92vw, 1100px);
   display: grid;
   gap: 14px;
+  justify-items: center;
+  text-align: center;
+  margin: 0 auto;
 }
 
 .hero-name {
@@ -549,6 +588,20 @@ main {
   border-color: var(--text);
 }
 
+.timeline-item[data-active="true"] .timeline-node {
+  background: #ff6b6b;
+  border-color: #ff6b6b;
+  box-shadow:
+    0 0 0 4px var(--bg),
+    0 0 14px rgba(255, 107, 107, 0.65);
+  animation: pulseActive 1.8s ease-in-out infinite;
+}
+
+@keyframes pulseActive {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
 .timeline-card {
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -602,7 +655,7 @@ main {
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  max-width: 720px;
+  max-width: 500px;
   margin: 0 auto;
   text-align: center;
 }
@@ -663,7 +716,7 @@ main {
   text-align: center;
   font-weight: 600;
   display: grid;
-  gap: 10px;
+  gap: 12px;
   justify-items: center;
 }
 
@@ -680,6 +733,99 @@ code {
   border: 1px solid var(--border);
 }
 
+.github-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 12px;
+}
+
+.github-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.github-grid {
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--card) 80%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.github-grid img {
+  width: 100%;
+  max-width: 840px;
+  height: auto;
+  filter: saturate(1.05);
+  border-radius: 10px;
+}
+
+.tiny {
+  font-size: 0.85rem;
+}
+
+/* GitHub calendar: ocultar stats y footer, solo el grid */
+.calendar .contrib-legend,
+.calendar .contrib-footer,
+.calendar .contrib-column,
+.calendar h2,
+.calendar h3 {
+  display: none !important;
+}
+
+
+
+.calendar {
+  width: 100%;
+}
+
+.calendar .calendar-graph {
+  margin: 0 auto !important;
+}
+
+/* Override status pill for footer placement */
+.hero-status {
+  position: static;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 85%, transparent);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow);
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #4cff72;
+  box-shadow: 0 0 16px rgba(76, 255, 114, 0.8);
+  animation: pulseDot 1.2s ease-in-out infinite;
+}
+
+.status-text {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.55; transform: scale(0.94); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+
 @media (max-width: 900px) {
   .section {
     padding: 88px 6vw;
@@ -693,6 +839,10 @@ code {
 @media (max-width: 640px) {
   .section {
     padding: 72px 5vw;
+  }
+
+  .github {
+    display: none;
   }
 
   .contact-card {
@@ -793,22 +943,48 @@ code {
 
 /* Hero name: fijar ancho y glitch suave */
 .hero-name {
-  display: inline-block;
+  display: block;
+  width: 100%;
   white-space: nowrap;
-  min-width: 18ch;
+  margin: 0 auto;
 }
 
 .hero-name.glitching {
   animation: glitchFlickerSoft 0.8s steps(2, end) infinite;
   text-shadow:
-    0.6px 0px 4px rgba(255, 107, 107, 0.2),
-    -0.6px 0px 4px rgba(116, 227, 138, 0.2);
+    0 0 4px rgba(255, 107, 107, 0.18),
+    0 0 4px rgba(116, 227, 138, 0.18);
   cursor: pointer;
 }
 
 @keyframes glitchFlickerSoft {
-  0% { transform: translate(0, 0); color: #f7f7f7; }
-  33% { transform: translate(-0.4px, 0.2px); color: #ff6b6b; }
-  66% { transform: translate(0.4px, -0.2px); color: #9a9a9a; }
-  100% { transform: translate(0, 0); color: #f7f7f7; }
+  0% { color: #f7f7f7; }
+  33% { color: #ff6b6b; }
+  66% { color: #9a9a9a; }
+  100% { color: #f7f7f7; }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding: 72px 5vw;
+  }
+
+  .hero-inner {
+    width: 100%;
+    gap: 10px;
+  }
+
+  .hero-name {
+    white-space: normal;
+    font-size: clamp(38px, 9vw, 64px);
+  }
+
+  .hero-clock {
+    right: 16px;
+    top: 16px;
+  }
+
+  .hero-code {
+    width: 100%;
+  }
 }

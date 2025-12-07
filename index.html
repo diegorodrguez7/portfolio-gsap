@@ -8,10 +8,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/github-calendar@latest/dist/github-calendar-responsive.css">
   <link rel="stylesheet" href="styles.css">
   <script src="https://unpkg.com/gsap@3/dist/gsap.min.js" defer></script>
   <script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js" defer></script>
   <script src="https://unpkg.com/@studio-freight/lenis@1.0.35/bundled/lenis.min.js" defer></script>
+  <script src="https://unpkg.com/github-calendar@latest/dist/github-calendar.min.js" defer></script>
   <script src="script.js" defer></script>
 </head>
 <body data-theme="dark">
@@ -82,7 +84,7 @@
       <div class="section-head">
         <div>
           <p class="eyebrow eyebrow-badge">Experiencia</p>
-          <h2>Actualmente: Robootics Education</h2>
+          <h2>Actualmente: Robootics Education S.L / XYZ Digital Solutions S.L</h2>
         </div>
       </div>
       <div id="experience-graph" class="timeline"></div>
@@ -96,6 +98,26 @@
         </div>
       </div>
       <div id="education-list" class="education-grid"></div>
+    </section>
+
+    <section id="github" class="section github">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow eyebrow-badge">GitHub</p>
+          <h2>Actividad reciente</h2>
+        </div>
+      </div>
+      <div class="github-card">
+        <div class="github-hero">
+          <div>
+            <p class="muted small">Contribuciones · últimos 12 meses</p>
+            <strong>@diegorodrguez7</strong>
+          </div>
+          <a class="repo-link" href="https://github.com/diegorodrguez7" target="_blank" rel="noreferrer">Ver perfil</a>
+        </div>
+        <div id="github-calendar" class="github-grid calendar">Cargando actividad...</div>
+        <p class="muted tiny">Commits en repositorios públicos.</p>
+      </div>
     </section>
 
     <section id="contact" class="section contact">
@@ -119,7 +141,11 @@
       <a href="privacidad.html">Privacidad</a>
       <a href="cookies.html">Cookies</a>
     </div>
-    <p>Desarrollado por Diego Rodríguez con ❤️ 2025</p>
+    <p>Desarrollado por Diego Rodríguez con ❤️ All Right Reserved | 2025</p>
+    <div class="hero-status" aria-label="Estado del sistema">
+      <span class="status-dot"></span>
+      <span class="status-text">Server Status: ON</span>
+    </div>
   </footer>
 
   <div class="cookie-banner" id="cookie-banner">
