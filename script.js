@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const heroProgressLabel = document.getElementById("hero-progress-label");
   const heroTarget = document.querySelector(".hero-target");
   const heroName = document.querySelector(".hero-name");
+  if (heroName) heroName.style.whiteSpace = "nowrap";
 
   // -------- Data para personalizar --------
   const featuredRepos = [
@@ -250,6 +251,58 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   positionTarget();
   window.addEventListener("resize", positionTarget);
+
+  // Glitch hover en el nombre
+  if (heroName) {
+    const originalName = heroName.textContent || "";
+    const palette = ["#f7f7f7", "#ff6b6b", "#9a9a9a"];
+    const symbols = "01/#*|_-=+[]{}<>$%&";
+    let glitchTimer;
+    let glitching = false;
+
+    const runGlitch = () => {
+      if (glitching) return;
+      glitching = true;
+      let frame = 0;
+      const totalFrames = 14;
+      clearInterval(glitchTimer);
+      heroName.classList.add("glitching");
+      glitchTimer = setInterval(() => {
+        frame += 1;
+        if (frame >= totalFrames) {
+          clearInterval(glitchTimer);
+          heroName.textContent = originalName;
+          heroName.style.color = "";
+          heroName.classList.remove("glitching");
+          glitching = false;
+          return;
+        }
+        const scrambled = [...originalName]
+          .map((ch) => (ch === " " ? " " : symbols[Math.floor(Math.random() * symbols.length)]))
+          .join("");
+        heroName.textContent = scrambled;
+        heroName.style.color = palette[frame % palette.length];
+      }, 250);
+    };
+
+    heroName.setAttribute("tabindex", "0");
+    heroName.addEventListener("mouseenter", runGlitch);
+    heroName.addEventListener("focus", runGlitch);
+    heroName.addEventListener("mouseleave", () => {
+      clearInterval(glitchTimer);
+      heroName.textContent = originalName;
+      heroName.style.color = "";
+      heroName.classList.remove("glitching");
+      glitching = false;
+    });
+    heroName.addEventListener("blur", () => {
+      clearInterval(glitchTimer);
+      heroName.textContent = originalName;
+      heroName.style.color = "";
+      heroName.classList.remove("glitching");
+      glitching = false;
+    });
+  }
 
   const revealSection = (section) => {
     if (section.dataset.revealed) return;
