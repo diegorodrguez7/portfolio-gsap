@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const heroProgressLabel = document.getElementById("hero-progress-label");
   const heroTarget = document.querySelector(".hero-target");
   const heroName = document.querySelector(".hero-name");
+  if (heroName) heroName.style.whiteSpace = "nowrap";
 
   // -------- Data para personalizar --------
   const featuredRepos = [
@@ -120,11 +121,19 @@ document.addEventListener("DOMContentLoaded", () => {
     "generando sitemap...",
     "revisando logs...",
   ];
+  const errorSteps = [
+    "ERROR: dependencia no encontrada",
+    "ALERTA: checksum inválido",
+    "FALLO: assets corruptos",
+    "WARN: timeout en CDN",
+    "ERROR: permisos insuficientes",
+  ];
   let stepIndex = 0;
   const codeInterval = setInterval(() => {
     if (!codeLines.length) return;
     const line = codeLines[stepIndex % codeLines.length];
     line.textContent = steps[Math.min(stepIndex, steps.length - 1)];
+    line.style.color = "";
     stepIndex = (stepIndex + 1) % steps.length;
   }, 500);
 
@@ -156,13 +165,61 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // GitHub calendar (heatmap de contribuciones)
+  const calendarEl = document.getElementById("github-calendar");
+  if (calendarEl && typeof GitHubCalendar === "function") {
+    try {
+      GitHubCalendar("#github-calendar", "diegorodrguez7", {
+        responsive: true,
+        tooltips: true,
+        cache: 3600,
+        summary_text: "",
+        global_stats: false,
+      });
+    } catch (e) {
+      calendarEl.textContent = "No se pudo cargar el calendario. Visita github.com/diegorodrguez7";
+    }
+  }
+
   // Barra de progreso hero (15s, luego se desvanece)
   if (heroProgress && heroProgressLabel) {
     const duration = 15000;
     const start = performance.now();
+    let totalPaused = 0;
+    let pauseUntil = 0;
+    let pauseStarted = 0;
+    const minPausePct = 5;
+    const maxPausePct = 95;
+    const showErrorLine = () => {
+      if (!codeLines.length) return;
+      const line = codeLines[Math.floor(Math.random() * codeLines.length)];
+      line.textContent = errorSteps[Math.floor(Math.random() * errorSteps.length)];
+      line.style.color = "#ff6b6b";
+      setTimeout(() => {
+        line.style.color = "";
+      }, 1200);
+    };
     const tick = (now) => {
-      const elapsed = Math.min(now - start, duration);
+      if (pauseUntil && now < pauseUntil) {
+        requestAnimationFrame(tick);
+        return;
+      }
+      if (pauseUntil && now >= pauseUntil) {
+        totalPaused += pauseUntil - pauseStarted;
+        pauseUntil = 0;
+        pauseStarted = 0;
+      }
+
+      const elapsed = Math.min(Math.max(now - start - totalPaused, 0), duration);
       const pct = Math.floor((elapsed / duration) * 100);
+
+      if (!pauseUntil && pct > minPausePct && pct < maxPausePct && Math.random() < 0.01) {
+        const pauseDuration = 350 + Math.random() * 800; // 0.35s - 1.15s
+        pauseStarted = now;
+        pauseUntil = now + pauseDuration;
+        showErrorLine();
+      }
+
       heroProgress.style.width = `${pct}%`;
       heroProgressLabel.textContent = `${pct}%`;
       if (elapsed < duration) {
@@ -174,13 +231,19 @@ document.addEventListener("DOMContentLoaded", () => {
         // Consola: limpiar y mostrar ready
         clearInterval(codeInterval);
         codeLines.forEach((line, idx) => {
-          line.textContent = idx === 0 ? "Ready to deploy." : "";
+          if (idx === 0) {
+            line.textContent = "Ready to deploy 👍";
+            line.style.color = "#71f2d4";
+          } else {
+            line.textContent = "";
+            line.style.color = "";
+          }
         });
         setTimeout(() => {
           if (heroProgress.parentElement) {
             heroProgress.parentElement.style.display = "none";
           }
-        }, 800);
+        }, 650);
       }
     };
     requestAnimationFrame(tick);
@@ -250,6 +313,70 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   positionTarget();
   window.addEventListener("resize", positionTarget);
+
+  // Glitch hover en el nombre
+  if (heroName) {
+    const originalName = heroName.textContent || "";
+    const palette = ["#f7f7f7", "#fc0000ff", "#3a2e2eff"];
+    const symbols = "01/*##-=+[/}<>$%&";
+    let glitchTimer;
+    let glitching = false;
+    let autoGlitchTimer;
+
+    const runGlitch = () => {
+      if (glitching) return;
+      glitching = true;
+      let frame = 0;
+      const totalFrames = 4;
+      clearInterval(glitchTimer);
+      heroName.classList.add("glitching");
+      glitchTimer = setInterval(() => {
+        frame += 1;
+        if (frame >= totalFrames) {
+          clearInterval(glitchTimer);
+          heroName.textContent = originalName;
+          heroName.style.color = "";
+          heroName.classList.remove("glitching");
+          glitching = false;
+          return;
+        }
+        const scrambled = [...originalName]
+          .map((ch) => (ch === " " ? " " : symbols[Math.floor(Math.random() * symbols.length)]))
+          .join("");
+        heroName.textContent = scrambled;
+        heroName.style.color = palette[frame % palette.length];
+      }, 100);
+    };
+
+    heroName.setAttribute("tabindex", "0");
+    heroName.addEventListener("mouseenter", runGlitch);
+    heroName.addEventListener("focus", runGlitch);
+    heroName.addEventListener("mouseleave", () => {
+      clearInterval(glitchTimer);
+      heroName.textContent = originalName;
+      heroName.style.color = "";
+      heroName.classList.remove("glitching");
+      glitching = false;
+    });
+    heroName.addEventListener("blur", () => {
+      clearInterval(glitchTimer);
+      heroName.textContent = originalName;
+      heroName.style.color = "";
+      heroName.classList.remove("glitching");
+      glitching = false;
+    });
+
+    const scheduleAutoGlitch = () => {
+      clearTimeout(autoGlitchTimer);
+      const windows = [6000, 5000, 7000, 6500, 4500]; // ms
+      const delay = windows[Math.floor(Math.random() * windows.length)] + Math.random() * 250; // leve variación
+      autoGlitchTimer = setTimeout(() => {
+        runGlitch();
+        scheduleAutoGlitch();
+      }, delay);
+    };
+    scheduleAutoGlitch();
+  }
 
   const revealSection = (section) => {
     if (section.dataset.revealed) return;
