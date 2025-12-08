@@ -12,11 +12,15 @@
   <link rel="stylesheet" href="styles.css">
   <script src="https://unpkg.com/gsap@3/dist/gsap.min.js" defer></script>
   <script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js" defer></script>
+  <script src="https://unpkg.com/gsap@3/dist/Flip.min.js" defer></script>
+  <script src="https://unpkg.com/gsap@3/dist/CustomEase.min.js" defer></script>
   <script src="https://unpkg.com/@studio-freight/lenis@1.0.35/bundled/lenis.min.js" defer></script>
   <script src="https://unpkg.com/github-calendar@latest/dist/github-calendar.min.js" defer></script>
   <script src="script.js" defer></script>
 </head>
 <body data-theme="dark">
+  <div class="patterncraft-bg" aria-hidden="true"></div>
+  <div class="patterncraft-vignette" aria-hidden="true"></div>
   <div class="noise"></div>
 
   <main>
@@ -80,6 +84,90 @@
       <div id="tech-list" class="tech-grid"></div>
     </section>
 
+    <section id="gallery" class="section mono-slider">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow eyebrow-badge">Residencia</p>
+          <h2>La Isla Bonita</h2>
+        </div>
+      </div>
+
+      <div class="mono-container">
+        <div class="mono-preloader">
+          <div class="mono-preloader-counter">0</div>
+        </div>
+
+        <div class="mono-grid-container">
+          <div class="mono-grid" id="mono-grid">
+            <div class="mono-grid-item" data-index="0">
+              <div class="mono-grid-item-img" style="background-image:url(imagesslider/pexels-emilio-garcia-96280844-26237988.jpg)"></div>
+            </div>
+            <div class="mono-grid-item" data-index="1">
+              <div class="mono-grid-item-img" style="background-image:url(imagesslider/pexels-juan-garcia-84744800-32636709.jpg)"></div>
+            </div>
+            <div class="mono-grid-item" data-index="2">
+              <div class="mono-grid-item-img" style="background-image:url(imagesslider/pexels-legrip-18812675.jpg)"></div>
+            </div>
+            <div class="mono-grid-item" data-index="3">
+              <div class="mono-grid-item-img" style="background-image:url(imagesslider/pexels-leo-pekaar-4848842-6553617.jpg)"></div>
+            </div>
+            <div class="mono-grid-item target" data-index="4">
+              <div class="mono-grid-item-img" style="background-image:url(imagesslider/pexels-michael-goddard-213769109-11827213.jpg)"></div>
+            </div>
+            <div class="mono-grid-item" data-index="5">
+              <div class="mono-grid-item-img" style="background-image:url(imagesslider/pexels-zechen-li-187261660-12311997.jpg)"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mono-slider-image" id="mono-slider-image"></div>
+        <div class="mono-slider-image-bg" id="mono-slider-image-bg"></div>
+        <div class="mono-slider-image-next" id="mono-slider-image-next"></div>
+        <div class="mono-transition-overlay" id="mono-transition-overlay"></div>
+
+        <div class="mono-content" id="mono-content">
+          <h3 class="mono-content-title">
+            <span>MONOCHROME SERIES</span>
+          </h3>
+          <div class="mono-content-paragraph" id="mono-content-paragraph">
+            Without color, we see differently. Form and texture speak louder. The world simplified to light and dark reveals truths that color often conceals.
+          </div>
+        </div>
+
+        <div class="mono-thumbnails">
+          <div class="mono-thumbnail" data-index="0">
+            <div class="mono-thumbnail-img" style="background-image:url(imagesslider/pexels-emilio-garcia-96280844-26237988.jpg)"></div>
+          </div>
+          <div class="mono-thumbnail" data-index="1">
+            <div class="mono-thumbnail-img" style="background-image:url(imagesslider/pexels-juan-garcia-84744800-32636709.jpg)"></div>
+          </div>
+          <div class="mono-thumbnail" data-index="2">
+            <div class="mono-thumbnail-img" style="background-image:url(imagesslider/pexels-legrip-18812675.jpg)"></div>
+          </div>
+          <div class="mono-thumbnail" data-index="3">
+            <div class="mono-thumbnail-img" style="background-image:url(imagesslider/pexels-leo-pekaar-4848842-6553617.jpg)"></div>
+          </div>
+          <div class="mono-thumbnail active" data-index="4">
+            <div class="mono-thumbnail-img" style="background-image:url(imagesslider/pexels-michael-goddard-213769109-11827213.jpg)"></div>
+          </div>
+          <div class="mono-thumbnail" data-index="5">
+            <div class="mono-thumbnail-img" style="background-image:url(imagesslider/pexels-zechen-li-187261660-12311997.jpg)"></div>
+          </div>
+        </div>
+
+        <div class="mono-switch" id="mono-switch">
+          <button class="mono-switch-button mono-switch-button-grid mono-switch-button-current">
+            <span class="indicator-dot"></span>
+            TODAS
+          </button>
+          <button class="mono-switch-button mono-switch-button-slider">
+            <span class="indicator-dot"></span>
+            SLIDER
+          </button>
+        </div>
+      </div>
+    </section>
+
     <section id="experience" class="section experience">
       <div class="section-head">
         <div>
@@ -100,7 +188,7 @@
       <div id="education-list" class="education-grid"></div>
     </section>
 
-    <section id="github" class="section github">
+    <!-- <section id="github" class="section github">
       <div class="section-head">
         <div>
           <p class="eyebrow eyebrow-badge">GitHub</p>
@@ -118,7 +206,7 @@
         <div id="github-calendar" class="github-grid calendar">Cargando actividad...</div>
         <p class="muted tiny">Commits en repositorios públicos.</p>
       </div>
-    </section>
+    </section> -->
 
     <section id="contact" class="section contact">
       <div class="contact-card">
