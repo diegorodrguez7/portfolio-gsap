@@ -52,10 +52,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const experiences = [
     {
-      company: "Robootics Education",
+      company: "Robootics Education SL",
       role: "Ingeniero de software",
-      type: "Jornada parcial · Presencial",
-      period: "sept. 2025 - actualidad · 4 meses",
+      type: "Jornada Completa · Presencial",
+      startDate: "2025-08-10",
+      endDate: null,
       location: "Breña Baja, Canarias, España",
       tech: "JavaScript, Laravel",
       active: true,
@@ -64,7 +65,8 @@ document.addEventListener("DOMContentLoaded", () => {
       company: "Babel",
       role: "Ingeniero de software",
       type: "Contrato de prácticas · En remoto",
-      period: "abr. 2023 - oct. 2023 · 7 meses",
+      startDate: "2023-03-01",
+      endDate: "2023-10-01",
       location: "Madrid, España",
       tech: "JavaScript, .NET Framework",
       active: false,
@@ -73,7 +75,8 @@ document.addEventListener("DOMContentLoaded", () => {
       company: "Babel",
       role: "Ingeniero de software júnior",
       type: "Jornada completa · Presencial",
-      period: "feb. 2023 - abr. 2023 · 3 meses",
+      startDate: "2023-01-01",
+      endDate: "2023-03-01",
       location: "Proença-a-Nova, Portugal",
       tech: "Outsystems",
       active: false,
@@ -83,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const studies = [
     {
       title: "Certificaciones Laravel y Python · IA y análisis de datos",
-      detail: "+150h",
+      detail: "+159h - Angualar, Vue.js, Pandas, NumPy, Matplotlib, Scikit-learn",
     },
     {
       title: "Técnico en Desarrollo de Aplicaciones Web",
@@ -95,6 +98,34 @@ document.addEventListener("DOMContentLoaded", () => {
   // Tema fijo (sin toggle)
   body.dataset.theme = "dark";
   document.documentElement.style.colorScheme = "dark";
+
+  const monthNamesShort = ["ene.", "feb.", "mar.", "abr.", "may.", "jun.", "jul.", "ago.", "sept.", "oct.", "nov.", "dic."];
+
+  const formatDateLabel = (iso) => {
+    const d = new Date(iso);
+    if (Number.isNaN(d)) return "";
+    return `${monthNamesShort[d.getMonth()]} ${d.getFullYear()}`;
+  };
+
+  const diffMonths = (start, end) => {
+    let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+    if (end.getDate() < start.getDate()) months -= 1;
+    return Math.max(months, 0);
+  };
+
+  const formatExperiencePeriod = (exp) => {
+    if (exp.startDate) {
+      const start = new Date(exp.startDate);
+      const end = exp.endDate ? new Date(exp.endDate) : new Date();
+      if (Number.isNaN(start) || Number.isNaN(end)) return exp.period || "";
+      const months = diffMonths(start, end);
+      const monthsLabel = months === 1 ? "1 mes" : `${months} meses`;
+      const startLabel = formatDateLabel(start);
+      const endLabel = exp.endDate ? formatDateLabel(end) : "actualidad";
+      return `${startLabel} - ${endLabel} · ${monthsLabel}`;
+    }
+    return exp.period || "";
+  };
 
   // Hero role rotatorio
   const roles = ["Desarrollador Web Full Stack", "Programador Junior"];
@@ -463,9 +494,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (exp.active) item.dataset.active = "true";
       item.innerHTML = `
         <div class="timeline-node"></div>
-        <div class="timeline-card">
-          <div class="timeline-meta">
-            <span>${exp.period}</span>
+          <div class="timeline-card">
+            <div class="timeline-meta">
+            <span>${formatExperiencePeriod(exp)}</span>
             <span>${exp.type}</span>
           </div>
           <h3>${exp.role} · ${exp.company}</h3>
