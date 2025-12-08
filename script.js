@@ -491,4 +491,540 @@ document.addEventListener("DOMContentLoaded", () => {
       educationList.appendChild(card);
     });
   }
+
+  // Slider Monochrome (grid <-> slider)
+  const sliderSection = document.querySelector(".mono-slider");
+  // Skip slider on mobile widths to avoid carga y render en dispositivos pequeños
+  const isMobileWidth = window.innerWidth <= 768;
+  if (sliderSection && !isMobileWidth && typeof gsap !== "undefined" && typeof Flip !== "undefined") {
+    if (typeof CustomEase !== "undefined") gsap.registerPlugin(CustomEase);
+    gsap.registerPlugin(Flip);
+
+    const sliderEls = {
+      container: sliderSection.querySelector(".mono-container"),
+      grid: sliderSection.querySelector("#mono-grid"),
+      gridItems: sliderSection.querySelectorAll(".mono-grid-item"),
+      sliderImage: sliderSection.querySelector("#mono-slider-image"),
+      sliderImageBg: sliderSection.querySelector("#mono-slider-image-bg"),
+      sliderImageNext: sliderSection.querySelector("#mono-slider-image-next"),
+      transitionOverlay: sliderSection.querySelector("#mono-transition-overlay"),
+      content: sliderSection.querySelector("#mono-content"),
+      contentTitleSpan: sliderSection.querySelector(".mono-content-title span"),
+      contentParagraph: sliderSection.querySelector("#mono-content-paragraph"),
+      thumbnails: sliderSection.querySelectorAll(".mono-thumbnail"),
+      switchContainer: sliderSection.querySelector("#mono-switch"),
+      switchGrid: sliderSection.querySelector(".mono-switch-button-grid"),
+      switchSlider: sliderSection.querySelector(".mono-switch-button-slider"),
+      preloader: sliderSection.querySelector(".mono-preloader"),
+      preloaderCounter: sliderSection.querySelector(".mono-preloader-counter"),
+    };
+
+    const allSliderEls = Object.values(sliderEls);
+    if (allSliderEls.some((el) => el === null)) {
+      console.warn("Slider: faltan elementos obligatorios, no se inicializa.");
+      return;
+    }
+
+    const slideContent = [
+      {
+        title: "Puertos Pesqueros",
+        paragraph: "Estructuras pesadas. El acero cobra textura cuando el color desaparece.",
+      },
+      {
+        title: "Bosque Nebuloso",
+        paragraph: "Arboles y niebla se mezclan; cada paso cruje y la luz se queda en las copas.",
+      },
+      {
+        title: "Playas Escondidas",
+        paragraph: "Mar calmo y cielo plomizo. Silencio y bruma en la linea del horizonte.",
+      },
+       {
+        title: "Calles Típicas",
+        paragraph: "Reflejos en el asfalto y luces diluidas; la lluvia convierte la ciudad en negativo.",
+      },
+      {
+        title: "Mirador Nocturno",
+        paragraph: "Luces lejanas y viento frio. La altura reduce todo a formas simples y contraste puro.",
+      },
+      {
+        title: "Costa Rocosa",
+        paragraph: "Oleaje rompiendo en piedra oscura. El ritmo del agua dibuja la textura de la roca.",
+      },
+];
+
+    // Ajusta textos para las imágenes locales
+    slideContent.splice(
+      0,
+      slideContent.length,
+      {
+        title: "Puertos Pesqueros",
+        paragraph: "Estructuras pesadas. El acero cobra textura cuando el color desaparece.",
+      },
+      {
+        title: "Bosque Nebuloso",
+        paragraph: "Arboles y niebla se mezclan; cada paso cruje y la luz se queda en las copas.",
+      },
+      {
+        title: "Playas Escondidas",
+        paragraph: "Mar calmo y cielo plomizo. Silencio y bruma en la linea del horizonte.",
+      },
+       {
+        title: "Calles Típicas",
+        paragraph: "Reflejos en el asfalto y luces diluidas; la lluvia convierte la ciudad en negativo.",
+      },
+      {
+        title: "Mirador Nocturno",
+        paragraph: "Luces lejanas y viento frio. La altura reduce todo a formas simples y contraste puro.",
+      },
+      {
+        title: "Costa Rocosa",
+        paragraph: "Oleaje rompiendo en piedra oscura. El ritmo del agua dibuja la textura de la roca.",
+      }
+    );
+
+
+    const imageUrls = Array.from(sliderEls.gridItems).map(
+      (item) => item.querySelector(".mono-grid-item-img").style.backgroundImage
+    );
+
+    const ensureBW = () => {
+      [sliderEls.sliderImage, sliderEls.sliderImageBg, sliderEls.sliderImageNext].forEach((el) => {
+        if (el) el.style.filter = "grayscale(1) contrast(0.92) brightness(0.9)";
+      });
+    };
+
+    const TIMING = {
+      BASE: 0.512,
+      SHORTEST: 0.256,
+      SHORT: 0.384,
+      LONG: 0.768,
+      STAGGER_TINY: 0.032,
+      STAGGER_SMALL: 0.064,
+      STAGGER_MED: 0.128,
+    };
+
+    Object.assign(TIMING, {
+      BASE: 0.44,
+      SHORTEST: 0.22,
+      SHORT: 0.32,
+      LONG: 0.64,
+      STAGGER_TINY: 0.028,
+      STAGGER_SMALL: 0.052,
+      STAGGER_MED: 0.1,
+    });
+
+    let currentMode = "grid";
+    let isAnimating = false;
+    let activeIndex = 4;
+    let slideDirection = "right";
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    const getContainerRect = () => sliderEls.container.getBoundingClientRect();
+    const getItemRect = (item) => {
+      const rect = item.getBoundingClientRect();
+      const cRect = getContainerRect();
+      return {
+        x: rect.left - cRect.left,
+        y: rect.top - cRect.top,
+        width: rect.width,
+        height: rect.height,
+      };
+    };
+
+    const updateContent = (index) => {
+      const content = slideContent[index];
+      if (!content) return;
+      sliderEls.contentTitleSpan.textContent = content.title;
+      sliderEls.contentParagraph.textContent = content.paragraph;
+    };
+
+    const setActiveThumbnail = (index) => {
+      sliderEls.thumbnails.forEach((thumb) => thumb.classList.remove("active"));
+      const thumb = sliderSection.querySelector(`.mono-thumbnail[data-index="${index}"]`);
+      if (thumb) thumb.classList.add("active");
+    };
+
+    const showSliderView = () =>
+      new Promise((resolve) => {
+        const activeItem = sliderSection.querySelector(`.mono-grid-item[data-index="${activeIndex}"]`);
+        if (!activeItem) return resolve();
+        const { x, y, width, height } = getItemRect(activeItem);
+        const cRect = getContainerRect();
+        const activeUrl = imageUrls[activeIndex];
+
+        sliderEls.sliderImage.style.backgroundImage = activeUrl;
+        sliderEls.sliderImageBg.style.backgroundImage = activeUrl;
+        sliderEls.sliderImageNext.style.backgroundImage = activeUrl;
+        ensureBW();
+        updateContent(activeIndex);
+
+        gsap.set(sliderEls.sliderImage, {
+          width,
+          height,
+          x,
+          y,
+          opacity: 1,
+          visibility: "visible",
+        });
+
+        const heightState = Flip.getState(sliderEls.sliderImage);
+        gsap.set(sliderEls.sliderImage, { height: cRect.height, y: 0, width, x });
+
+        Flip.from(heightState, {
+          duration: TIMING.BASE,
+          ease: "mainEase",
+          onComplete: () => {
+            const widthState = Flip.getState(sliderEls.sliderImage);
+            gsap.set(sliderEls.sliderImage, { width: cRect.width, x: 0 });
+
+            Flip.from(widthState, {
+              duration: TIMING.BASE,
+              ease: "mainEase",
+              onComplete: () => {
+                gsap.to(sliderEls.grid, { opacity: 0, duration: TIMING.SHORTEST, ease: "power2.inOut" });
+
+                const tl = gsap.timeline({ onComplete: resolve });
+                tl.to(
+                  sliderEls.content,
+                  { opacity: 1, duration: TIMING.SHORT, ease: "mainEase" },
+                  0
+                );
+                tl.to(
+                  sliderEls.contentTitleSpan,
+                  { y: 0, duration: TIMING.BASE, ease: "sideEase" },
+                  TIMING.STAGGER_TINY
+                );
+                tl.to(
+                  sliderEls.contentParagraph,
+                  { opacity: 1, duration: TIMING.BASE, ease: "mainEase" },
+                  TIMING.STAGGER_SMALL
+                );
+                tl.to(
+                  sliderEls.thumbnails,
+                  {
+                    opacity: 1,
+                    y: 0,
+                    duration: TIMING.SHORT,
+                    stagger: TIMING.STAGGER_TINY,
+                    ease: "sideEase",
+                  },
+                  TIMING.STAGGER_MED
+                );
+              },
+            });
+          },
+        });
+      });
+
+    const showGridView = () =>
+      new Promise((resolve) => {
+        const activeItem = sliderSection.querySelector(`.mono-grid-item[data-index="${activeIndex}"]`);
+        if (!activeItem) return resolve();
+        const { x, y, width, height } = getItemRect(activeItem);
+        const cRect = getContainerRect();
+
+        const tl = gsap.timeline({
+          onComplete: () => {
+            gsap.to(sliderEls.grid, { opacity: 1, duration: TIMING.SHORTEST, ease: "power2.inOut" });
+            gsap.set([sliderEls.sliderImageNext, sliderEls.sliderImageBg, sliderEls.transitionOverlay], {
+              opacity: 0,
+              visibility: "hidden",
+            });
+
+            const widthState = Flip.getState(sliderEls.sliderImage);
+            gsap.set(sliderEls.sliderImage, { width, x, height: cRect.height, y: 0 });
+
+            Flip.from(widthState, {
+              duration: TIMING.BASE,
+              ease: "mainEase",
+              onComplete: () => {
+                const heightState = Flip.getState(sliderEls.sliderImage);
+                gsap.set(sliderEls.sliderImage, { height, y });
+
+                Flip.from(heightState, {
+                  duration: TIMING.BASE,
+                  ease: "mainEase",
+                  onComplete: () => {
+                    gsap.to(sliderEls.sliderImage, {
+                      opacity: 0,
+                      duration: TIMING.SHORTEST,
+                      ease: "power2.inOut",
+                      onComplete: () => {
+                        sliderEls.sliderImage.style.visibility = "hidden";
+                        resolve();
+                      },
+                    });
+                  },
+                });
+              },
+            });
+          },
+        });
+
+        tl.to(
+          sliderEls.thumbnails,
+          {
+            opacity: 0,
+            y: 20,
+            duration: TIMING.SHORT,
+            stagger: -TIMING.STAGGER_TINY,
+            ease: "sideEase",
+          },
+          0
+        );
+
+        tl.to(
+          sliderEls.contentParagraph,
+          { opacity: 0, duration: TIMING.SHORT, ease: "mainEase" },
+          TIMING.STAGGER_TINY
+        );
+
+        tl.to(
+          sliderEls.contentTitleSpan,
+          { y: "100%", duration: TIMING.SHORT, ease: "sideEase" },
+          TIMING.STAGGER_SMALL
+        );
+
+        tl.to(
+          sliderEls.content,
+          { opacity: 0, duration: TIMING.SHORT, ease: "mainEase" },
+          TIMING.STAGGER_MED
+        );
+      });
+
+    const transitionToSlide = (index) => {
+      if (isAnimating || index === activeIndex || currentMode !== "slider") return;
+      isAnimating = true;
+
+      slideDirection = index > activeIndex ? "right" : "left";
+      setActiveThumbnail(index);
+
+      const newImageUrl = imageUrls[index];
+      const currentImageUrl = imageUrls[activeIndex];
+      const xOffset = slideDirection === "right" ? "100%" : "-100%";
+
+      sliderEls.sliderImageNext.style.backgroundImage = newImageUrl;
+      sliderEls.sliderImageBg.style.backgroundImage = newImageUrl;
+      sliderEls.sliderImage.style.backgroundImage = currentImageUrl;
+      ensureBW();
+
+      gsap.set([sliderEls.sliderImageNext, sliderEls.sliderImageBg], { visibility: "visible" });
+      gsap.set(sliderEls.sliderImageNext, { x: xOffset, y: 0, opacity: 1, width: "100%", height: "100%" });
+      gsap.set(sliderEls.sliderImageBg, {
+        x: xOffset,
+        y: 0,
+        opacity: 0.9,
+        width: "100%",
+        height: "100%",
+        scale: 1,
+      });
+
+      const masterTl = gsap.timeline({
+        onComplete: () => {
+          sliderEls.sliderImage.style.backgroundImage = newImageUrl;
+          gsap.set([sliderEls.sliderImageNext, sliderEls.sliderImageBg, sliderEls.transitionOverlay], {
+            opacity: 0,
+            x: 0,
+            y: 0,
+            visibility: "hidden",
+          });
+          gsap.set(sliderEls.sliderImage, { x: 0, opacity: 1 });
+          updateContent(index);
+          activeIndex = index;
+
+          const showTl = gsap.timeline({
+            onComplete: () => {
+              isAnimating = false;
+            },
+          });
+
+          showTl.to(sliderEls.contentTitleSpan, { y: 0, duration: TIMING.BASE, ease: "sideEase" }, 0);
+          showTl.to(
+            sliderEls.contentParagraph,
+            { opacity: 1, duration: TIMING.BASE, ease: "mainEase" },
+            TIMING.STAGGER_SMALL
+          );
+        },
+      });
+
+      masterTl.to(
+        sliderEls.contentParagraph,
+        { opacity: 0, duration: TIMING.SHORT, ease: "mainEase" },
+        0
+      );
+
+      masterTl.to(
+        sliderEls.contentTitleSpan,
+        { y: "100%", duration: TIMING.SHORT, ease: "sideEase" },
+        TIMING.STAGGER_TINY
+      );
+
+      masterTl.to(
+        sliderEls.transitionOverlay,
+        { opacity: 0.15, duration: TIMING.SHORTEST, ease: "power1.in" },
+        TIMING.STAGGER_SMALL
+      );
+
+      masterTl.to(
+        sliderEls.transitionOverlay,
+        { opacity: 0, duration: TIMING.SHORT, ease: "power1.out" },
+        TIMING.STAGGER_MED
+      );
+
+      masterTl.to(
+        sliderEls.sliderImage,
+        {
+          x: slideDirection === "right" ? "-35%" : "35%",
+          opacity: 1,
+          duration: TIMING.LONG,
+          ease: "mainEase",
+        },
+        0
+      );
+
+      masterTl.to(
+        sliderEls.sliderImageBg,
+        {
+          x: slideDirection === "right" ? "-10%" : "10%",
+          y: 0,
+          opacity: 0.95,
+          scale: 1,
+          duration: TIMING.LONG,
+          ease: "sideEase",
+        },
+        TIMING.STAGGER_TINY
+      );
+
+      masterTl.to(
+        sliderEls.sliderImageNext,
+        {
+          x: 0,
+          opacity: 1,
+          duration: TIMING.LONG,
+          ease: "sideEase",
+        },
+        TIMING.STAGGER_SMALL
+      );
+    };
+
+    const toggleView = (mode) => {
+      if (isAnimating || currentMode === mode) return;
+      isAnimating = true;
+
+      sliderSection.querySelector(".mono-switch-button-current")?.classList.remove("mono-switch-button-current");
+      sliderSection.querySelector(`.mono-switch-button-${mode}`)?.classList.add("mono-switch-button-current");
+
+      currentMode = mode;
+      if (mode === "slider") {
+        showSliderView().then(() => {
+          isAnimating = false;
+        });
+      } else {
+        showGridView().then(() => {
+          isAnimating = false;
+        });
+      }
+    };
+
+    // Eventos
+    sliderEls.thumbnails.forEach((thumb) => {
+      thumb.addEventListener("click", () => {
+        const index = parseInt(thumb.getAttribute("data-index"), 10);
+        transitionToSlide(index);
+      });
+    });
+
+    sliderEls.switchGrid.addEventListener("click", () => toggleView("grid"));
+    sliderEls.switchSlider.addEventListener("click", () => toggleView("slider"));
+
+    const handleSwipe = () => {
+      const swipeThreshold = 50;
+      if (touchEndX < touchStartX - swipeThreshold) {
+        const nextIndex = (activeIndex + 1) % imageUrls.length;
+        transitionToSlide(nextIndex);
+      } else if (touchEndX > touchStartX + swipeThreshold) {
+        const prevIndex = (activeIndex - 1 + imageUrls.length) % imageUrls.length;
+        transitionToSlide(prevIndex);
+      }
+    };
+
+    document.addEventListener("keydown", (e) => {
+      if (currentMode !== "slider" || isAnimating) return;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        transitionToSlide((activeIndex + 1) % imageUrls.length);
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        transitionToSlide((activeIndex - 1 + imageUrls.length) % imageUrls.length);
+      }
+    });
+
+    document.addEventListener("touchstart", (e) => {
+      if (currentMode !== "slider" || isAnimating) return;
+      touchStartX = e.changedTouches[0].screenX;
+    });
+
+    document.addEventListener("touchend", (e) => {
+      if (currentMode !== "slider" || isAnimating) return;
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    });
+
+    // Preloader sencillo
+    const startCounter = () => {
+      if (!sliderEls.preloader || !sliderEls.preloaderCounter) {
+        initSlider();
+        return;
+      }
+      let count = 0;
+      const increment = 5;
+      const interval = setInterval(() => {
+        count += increment;
+        sliderEls.preloaderCounter.textContent = Math.min(count, 100);
+        if (count >= 100) {
+          clearInterval(interval);
+          sliderEls.preloader.classList.add("hidden");
+          setTimeout(initSlider, 180);
+        }
+      }, 90);
+    };
+
+    const initSlider = () => {
+      updateContent(activeIndex);
+      setActiveThumbnail(activeIndex);
+      gsap.set(sliderEls.content, { opacity: 0 });
+      gsap.set(sliderEls.contentTitleSpan, { y: "100%" });
+      gsap.set(sliderEls.contentParagraph, { opacity: 0 });
+      gsap.set(sliderEls.sliderImage, { opacity: 0, visibility: "hidden", backgroundImage: imageUrls[activeIndex] });
+      gsap.set(sliderEls.sliderImageBg, { opacity: 0, visibility: "hidden" });
+      gsap.set(sliderEls.sliderImageNext, { opacity: 0, visibility: "hidden" });
+      gsap.set(sliderEls.transitionOverlay, { opacity: 0, visibility: "hidden" });
+      gsap.set(sliderEls.thumbnails, { opacity: 0, y: 20 });
+      ensureBW();
+    };
+
+    let sliderInitialized = false;
+    const triggerInit = () => {
+      if (sliderInitialized) return;
+      sliderInitialized = true;
+      startCounter();
+    };
+
+    const rect = sliderSection.getBoundingClientRect();
+    if (rect.top < window.innerHeight * 1.2) {
+      triggerInit();
+    } else {
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              triggerInit();
+              io.disconnect();
+            }
+          });
+        },
+        { threshold: 0.2 }
+      );
+      io.observe(sliderSection);
+    }
+  }
 });
